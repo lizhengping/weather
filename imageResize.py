@@ -76,7 +76,7 @@ class Graphics:
 
 if __name__ == '__main__' :
 
-
+    ############
     a=Graphics("0")
     a.fixed_size(768,512)
     a=Graphics("1")
