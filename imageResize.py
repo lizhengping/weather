@@ -61,6 +61,7 @@ class Graphics:
         width = float(width)
         height = float(height)
         (x, y) = im.size
+        #jiudjasiofjao
         if width > height:
             region = (0, int((y - (y * (height / width))) / 2), x, int((y + (y * (height / width))) / 2))
         elif width < height:
