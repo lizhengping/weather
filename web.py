@@ -1,4 +1,5 @@
-#coding = utf-8
+# -*- coding: utf-8 -*-
+
 import urllib
 import re
 import urllib.request
@@ -43,7 +44,7 @@ def wenzi(im,state):
 def Yuntu(arr):
     global dayNow
     global state
-    toImage = Image.new('RGBA', (900, 4400))
+    toImage = Image.new('RGBA', (900, 3000),'#ffffff')
     for i in range(4):
         fromImge = Image.open(arr[i])
         loc = (50,(i * 600+270))
@@ -54,7 +55,7 @@ def Yuntu(arr):
 
     toImage=wenzi(toImage,state)
 
-    toImage.save("./"+dayNow+'/weatheReport.png')
+    toImage.save("./"+dayNow+'/weatherReport.png')
 
 def mkdir(path):
     # 引入模块
@@ -131,7 +132,7 @@ def getImg(html):
     download(weather_clock_url, weather_clock)
 
     ########天气预报图################
-    weather_forecast_url = "http://202.127.24.18/v4/bin/two.php?lon=117.275&lat=40.26&lang=zh-CN&ac=0&unit=metric&output=internal&tzshift=0"
+    weather_forecast_url = "http://202.127.24.18/v4/bin/civillight.php?lon=117.275&lat=40.26&lang=zh-CN&ac=0&unit=metric&output=internal&tzshift=0"
     weather_forecast="./" + str(d) + "/" + str(t) + "_weather_ forecast.jpg"
     download(weather_forecast_url, weather_forecast)
 
@@ -161,7 +162,7 @@ def weatherReport(urls):
         if i==2:
             a.fixed_size(768, 312)
         if i==3:
-            a.fixed_size(768, 1200)
+            a.fixed_size(768, 200)
         arr.append("./"+dayNow+'/'+str(i)+'_1.jpg')
         #arr=
     Yuntu(arr)
@@ -203,7 +204,7 @@ def get_state(version=1):
 
     ########前一天晚上运行，得到凌晨状况，默认优################
     if version == 2:
-        cloudcover_yesterday = (cloudcover[27] + cloudcover[30]) / 2
+        cloudcover_yesterday = (cloudcover[9] + cloudcover[12]) / 2
         if cloudcover_state[0] > 0:
             state[0] = u"优"
         if cloudcover_state[0] > 4:
@@ -213,18 +214,42 @@ def get_state(version=1):
         pass
     print (state)
 
-
-if __name__ == '__main__' :
-
+def createWeatherReport():
     global state
     global dayNow
+    hour1=0
+    hour2=9
+    complete_Flag1 = False
+    complete_Flag2 = False
+
+
     dayNow = time.strftime(u"%Y_%m_%d", time.localtime(time.time()))
     state = [u'优', u'优', u'优', u'优']
-    get_state()
+    print ('waitting....')
 
-    ########天文台全天相机################
-    html = getHtml("http://www.xinglong-naoc.org/weather/")
-    getImg(html)
+    while not (complete_Flag1 and complete_Flag2):
+
+        hourNow = int(time.strftime("%H",time.localtime(time.time())))
+        if (hourNow==hour1) and (not complete_Flag1):
+            get_state(version=2)
+            print ('First complete....')
+            complete_Flag1=True
+        if (hourNow==hour2) and (not complete_Flag2):
+            get_state(version=1)
+
+
+            ########天文台全天相机################
+            html = getHtml("http://www.xinglong-naoc.org/weather/")
+            getImg(html)
+            complete_Flag2 = True
+            print ('All complete....')
+        time.sleep(60)
+        text = u'兴隆站天气' + day + u'\n凌晨 ' + state[0] + u'\n930 ' + state[1] + u'\n当天 ' + state[2] + u'\n次日 ' + state[3]
+    return text
+
+if __name__ == '__main__' :
+    createWeatherReport()
+
 
 
 
